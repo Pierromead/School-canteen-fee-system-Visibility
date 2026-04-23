@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080C18">
+<title>CanteenPay</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080C18;--bg2:#0F1629;--bg3:#162038;--bg4:#1C2940;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --green:#10B981;--green2:#059669;--gl:rgba(16,185,129,0.10);--gg:rgba(16,185,129,0.22);
+  --amber:#F59E0B;--al:rgba(245,158,11,0.12);--red:#EF4444;--rl:rgba(239,68,68,0.11);
+  --blue:#3B82F6;--bl:rgba(59,130,246,0.11);--purple:#8B5CF6;--pl:rgba(139,92,246,0.11);
+  --teal:#06B6D4;--tl:rgba(6,182,212,0.11);
+  --text:#EEF2FF;--t2:#94A3B8;--t3:#4B5A72;
+  --r:14px;--rs:8px;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  height:100%;font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+input,select,button,textarea{font-family:inherit}
+button{cursor:pointer}
+
+/* background glow */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% -5%,rgba(16,185,129,.09) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 35% at 85% 105%,rgba(59,130,246,.06) 0%,transparent 55%);
+}
+
+/* ── SCREEN SYSTEM ── */
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0;position:relative;z-index:1}
+.screen.active{display:flex}
+
+/* ── LOGIN ── */
+#sc-login{justify-content:center;align-items:center;padding:1.5rem;overflow-y:auto}
+.lw{width:100%;max-width:390px}
+.lh{text-align:center;margin-bottom:2rem}
+.lh-icon{
+  width:76px;height:76px;border-radius:22px;margin:0 auto 1rem;
+  background:var(--gl);border:1.5px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;box-shadow:0 0 40px rgba(16,185,129,.18);
+}
+.lh h1{font-size:30px;font-weight:800;letter-spacing:-1px}
+.lh h1 em{color:var(--green);font-style:normal}
+.lh p{color:var(--t2);font-size:13px;margin-top:5px}
+.lcard{background:var(--bg2);border:1px solid var(--border2);border-radius:22px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.role-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem}
+.role-btn{padding:12px;text-align:center;border-radius:var(--rs);border:1.5px solid var(--border);background:transparent;color:var(--t2);font-size:13px;font-weight:700;transition:all .18s}
+.role-btn.on{background:var(--gl);border-color:var(--green);color:var(--green)}
+.lf{margin-bottom:.9rem}
+.lf label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.lf input{width:100%;padding:13px 14px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:15px;transition:border-color .18s}
+.lf input:focus{outline:none;border-color:var(--green)}
+.lf input::placeholder{color:var(--t3)}
+.lerr{background:var(--rl);border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);padding:10px 14px;color:var(--red);font-size:13px;margin-bottom:.9rem;display:none}
+.login-btn{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:800;transition:all .18s;margin-top:.25rem}
+.login-btn:active{background:var(--green2);transform:scale(.98)}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;gap:10px;padding:0 16px;
+  height:54px;flex-shrink:0;z-index:10;
+  background:rgba(8,12,24,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.tb-brand{font-size:17px;font-weight:800;letter-spacing:-.5px}
+.tb-brand em{color:var(--green);font-style:normal}
+.tb-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tb-user{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:30px;padding:4px 12px 4px 4px}
+.tb-av{width:28px;height:28px;border-radius:50%;background:var(--gl);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--green);flex-shrink:0}
+.tb-name{font-size:12px;font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sync-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3)}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ico-btn{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s}
+.ico-btn:active{transform:scale(.9)}
+
+/* ── BOTTOM NAV ── */
+.bnav{display:none;background:rgba(8,12,24,.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);flex-shrink:0;z-index:10;padding:6px 0 max(6px,env(safe-area-inset-bottom))}
+.bnav.show{display:flex}
+.bnav-inner{display:flex;width:100%}
+.bnav-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;color:var(--t3);font-size:10px;font-weight:700;letter-spacing:.2px;transition:all .15s}
+.bnav-tab .ni{font-size:20px}
+.bnav-tab.on{color:var(--green)}
+
+/* ── TEACHER SCREEN CHROME ── */
+#sc-teacher{background:var(--bg)}
+.strip{padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.strip-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.date-lbl{font-size:13px;font-weight:600;color:var(--t2)}
+.d-input{padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-size:13px}
+.d-input:focus{outline:none;border-color:var(--green)}
+
+/* summary stats */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:8px 4px;text-align:center}
+.s-n{font-size:18px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.s-l{font-size:8px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.s-n.g{color:var(--green)}.s-n.r{color:var(--red)}.s-n.a{color:var(--amber)}.s-n.b{color:var(--blue)}.s-n.p{color:var(--purple)}
+
+/* search + add bar */
+.sw{padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;gap:8px}
+.s-inp{flex:1;padding:9px 14px 9px 36px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234B5A72' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center;background-size:15px}
+.s-inp:focus{outline:none;border-color:var(--green)}
+.s-inp::placeholder{color:var(--t3)}
+
+/* filter tabs */
+.ftabs{display:flex;gap:6px;padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.ftabs::-webkit-scrollbar{display:none}
+.ft{padding:5px 14px;border-radius:20px;white-space:nowrap;border:1px solid var(--border);background:transparent;color:var(--t2);font-size:12px;font-weight:700;flex-shrink:0;transition:all .15s}
+.ft.on{background:var(--gl);border-color:var(--green);color:var(--green)}
+
+/* ═══════════════════════════════════════════════════════
+   STUDENT CARD — the main teacher UI
+   Layout: [#] [name + meta] | [D] [W] [T] [Eats]
+═══════════════════════════════════════════════════════ */
+.roll{flex:1;overflow-y:auto;padding:8px 12px 90px;-webkit-overflow-scrolling:touch}
+
+.sc{
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:var(--r);margin-bottom:8px;
+  transition:border-color .18s,background .18s;overflow:hidden;
+}
+.sc.paid  {border-color:rgba(16,185,129,.35);background:linear-gradient(135deg,rgba(16,185,129,.06),var(--bg2) 60%)}
+.sc.weekly{border-color:rgba(59,130,246,.35); background:linear-gradient(135deg,rgba(59,130,246,.06),var(--bg2) 60%)}
+.sc.term  {border-color:rgba(139,92,246,.35); background:linear-gradient(135deg,rgba(139,92,246,.06),var(--bg2) 60%)}
+.sc.ate   {border-color:rgba(245,158,11,.35); background:linear-gradient(135deg,rgba(245,158,11,.06),var(--bg2) 60%)}
+
+/* top row: number + name + id */
+.sc-top{display:flex;align-items:center;gap:10px;padding:11px 12px 6px}
+.sc-num{width:24px;text-align:center;font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:14px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-meta{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.sc-id{font-family:var(--mono);font-size:10px;color:var(--t3)}
+.sc-contact{font-size:10px;color:var(--t3)}
+
+/* status badge */
+.s-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.2px;display:inline-flex;align-items:center;gap:3px}
+.sb-paid  {background:var(--gl);color:var(--green)}
+.sb-weekly{background:var(--bl);color:var(--blue)}
+.sb-term  {background:var(--pl);color:var(--purple)}
+.sb-ate   {background:var(--al);color:var(--amber)}
+
+/* action buttons row */
+.sc-actions{
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:0;border-top:1px solid var(--border);
+}
+.ac-btn{
+  padding:10px 4px;border:none;background:transparent;color:var(--t2);
+  font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.2px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:all .15s;border-right:1px solid var(--border);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.ac-btn:last-child{border-right:none}
+.ac-btn:active{transform:scale(.93)}
+.ac-icon{font-size:16px;line-height:1}
+.ac-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.ac-sub{font-size:8px;color:var(--t3);margin-top:-1px}
+
+/* active states */
+.ac-btn.act-day   {background:rgba(16,185,129,.1);color:var(--green)}
+.ac-btn.act-week  {background:rgba(59,130,246,.1);color:var(--blue)}
+.ac-btn.act-term  {background:rgba(139,92,246,.1);color:var(--purple)}
+.ac-btn.act-ate   {background:rgba(245,158,11,.1);color:var(--amber)}
+
+/* weekly badge showing weeks count */
+.week-count{
+  font-size:9px;font-weight:800;background:var(--blue);color:#fff;
+  border-radius:10px;padding:1px 5px;margin-top:1px;font-family:var(--mono);
+}
+
+/* ── ADMIN / BACKEND SHARED ── */
+#sc-admin,#sc-backend{background:var(--bg)}
+.abody{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch;padding-bottom:72px}
+.bbody{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch;padding-bottom:72px}
+@media(min-width:700px){
+  .abody,.bbody{max-width:940px;margin:0 auto;padding:24px 24px 80px;width:100%}
+}
+
+/* metrics */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+@media(min-width:480px){.metrics{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:700px){.metrics{grid-template-columns:repeat(6,1fr)}}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 12px;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.7}
+.mc.g::before{background:var(--green)}.mc.r::before{background:var(--red)}.mc.a::before{background:var(--amber)}.mc.b::before{background:var(--blue)}.mc.p::before{background:var(--purple)}
+.mc-l{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.mc-v{font-size:24px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.mc-v.g{color:var(--green)}.mc-v.r{color:var(--red)}.mc-v.a{color:var(--amber)}.mc-v.b{color:var(--blue)}
+
+.sec{margin-bottom:20px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.sec-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px}
+
+/* teacher breakdown cards */
+.tc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.tc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tc-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.av-g{background:var(--gl);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.av-b{background:var(--bl);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.av-p{background:var(--pl);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.av-a{background:var(--al);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.tc-info{flex:1;min-width:0}
+.tc-name{font-size:14px;font-weight:700}
+.tc-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.tc-amt{font-size:16px;font-weight:800;color:var(--green);font-family:var(--mono)}
+.prog{height:4px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.prog-f{height:100%;border-radius:3px;background:var(--green);transition:width .5s}
+.tc-stats{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.tc-stat{font-size:11px;color:var(--t3);background:var(--bg3);border-radius:6px;padding:3px 8px}
+.tc-stat b{color:var(--text);font-weight:700}
+
+/* log table */
+.log-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.log-scroll{overflow-x:auto}
+.log-t{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+.log-t th{text-align:left;padding:9px 12px;background:var(--bg3);color:var(--t3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.log-t td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.log-t tr:last-child td{border-bottom:none}
+.log-t tr:hover td{background:rgba(255,255,255,.02)}
+
+/* backend */
+.be-sec{margin-bottom:24px}
+.be-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.be-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.fee-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fee-c{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:14px;text-align:center}
+.fee-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.fee-inp{width:100%;background:transparent;border:none;color:var(--green);font-size:24px;font-weight:800;text-align:center;font-family:var(--mono)}
+.fee-inp:focus{outline:none}
+.fee-unit{font-size:10px;color:var(--t3);margin-top:4px}
+.tl-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px}
+.tl-info{flex:1;min-width:0}
+.tl-name{font-size:13px;font-weight:700}
+.tl-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.tl-acts{display:flex;gap:6px;flex-shrink:0}
+.stu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:6px}
+.stu-info{flex:1;min-width:0}
+.stu-name{font-size:13px;font-weight:600}
+.stu-sub{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ── IMPORT CLASS LIST SECTION ── */
+.import-box{
+  background:var(--bg2);border:1.5px dashed var(--border2);
+  border-radius:var(--r);padding:20px;margin-bottom:12px;
+}
+.import-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.imp-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t2);font-size:12px;font-weight:700;transition:all .15s}
+.imp-tab.on{background:var(--gl);border-color:var(--green);color:var(--green)}
+.imp-area{width:100%;min-height:120px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;resize:vertical;font-family:var(--mono);line-height:1.6}
+.imp-area:focus{outline:none;border-color:var(--green)}
+.imp-area::placeholder{color:var(--t3);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px}
+.imp-hint{font-size:11px;color:var(--t3);margin-top:8px;line-height:1.6}
+.imp-preview{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-top:10px;max-height:160px;overflow-y:auto}
+.imp-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.imp-row:last-child{border-bottom:none}
+.imp-check{color:var(--green);font-size:14px;flex-shrink:0}
+.imp-err{color:var(--red);font-size:14px;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 16px;border-radius:var(--rs);font-weight:700;font-size:13px;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text);transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.95)}
+.btn.pr{background:var(--green);color:#fff;border-color:var(--green2)}
+.btn.pr:active{background:var(--green2)}
+.btn.dn{background:var(--rl);color:var(--red);border-color:rgba(239,68,68,.25)}
+.btn.am{background:var(--al);color:var(--amber);border-color:rgba(245,158,11,.25)}
+.btn.bl{background:var(--bl);color:var(--blue);border-color:rgba(59,130,246,.25)}
+.btn.full{width:100%}
+.btn.sm{padding:7px 12px;font-size:12px}
+.btn.xs{padding:5px 9px;font-size:11px}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;letter-spacing:.2px}
+.pill.paid  {background:var(--gl);color:var(--green)}
+.pill.ate   {background:var(--al);color:var(--amber)}
+.pill.unpaid{background:var(--rl);color:var(--red)}
+.pill.daily {background:var(--gl);color:var(--green)}
+.pill.weekly{background:var(--bl);color:var(--blue)}
+.pill.term  {background:var(--pl);color:var(--purple)}
+.pill.admin {background:var(--al);color:var(--amber)}
+
+/* form elements */
+.f-group{margin-bottom:.9rem}
+.f-group label,.f-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.f-inp{width:100%;padding:11px 13px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:14px;transition:border-color .15s}
+.f-inp:focus{outline:none;border-color:var(--green)}
+.f-inp option{background:var(--bg2)}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── OVERLAY / DRAWER ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:200;align-items:flex-end;justify-content:center}
+.ov.open{display:flex}
+.drawer{background:var(--bg2);border-radius:24px 24px 0 0;border-top:1px solid var(--border2);padding-bottom:max(20px,env(safe-area-inset-bottom));width:100%;max-width:580px;animation:slideUp .25s cubic-bezier(.34,1.3,.64,1);max-height:94vh;overflow-y:auto}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.dh{width:40px;height:4px;background:var(--border2);border-radius:3px;margin:14px auto 18px}
+.dt{font-size:17px;font-weight:800;padding:0 20px;margin-bottom:16px;letter-spacing:-.3px}
+.db{padding:0 20px}
+.da{padding:14px 20px 0}
+@media(min-width:600px){.ov{align-items:center}.drawer{border-radius:20px;max-height:88vh;padding-bottom:20px}}
+
+/* FAB */
+.fab{position:fixed;bottom:20px;right:16px;z-index:20;background:var(--green);color:#fff;border:none;border-radius:30px;padding:13px 20px;font-size:13px;font-weight:800;box-shadow:0 4px 24px rgba(16,185,129,.4);transition:all .18s;display:flex;align-items:center;gap:7px}
+.fab:active{background:var(--green2);transform:scale(.95)}
+
+/* toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg3);border:1px solid var(--border2);border-radius:30px;padding:10px 22px;font-size:13px;font-weight:700;white-space:nowrap;z-index:300;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:all .22s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* empty */
+.empty{text-align:center;padding:48px 20px;color:var(--t3)}
+.empty .ei{font-size:44px;margin-bottom:10px}
+
+/* responsive */
+@media(min-width:600px){
+  .stat-row{grid-template-columns:repeat(5,1fr)}
+  .roll{padding:10px 20px 90px}
+  .sc-top{padding:13px 16px 8px}
+  .ac-btn{padding:12px 8px}
+  .ac-lbl{font-size:11px}
+  .ac-icon{font-size:18px}
+}
+@media(min-width:900px){
+  .stat-row{grid-template-columns:repeat(5,1fr)}
+  .sc-actions{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div class="screen active" id="sc-login">
+  <div class="lw">
+    <div class="lh">
+      <div class="lh-icon">🍽️</div>
+      <h1>Canteen<em>Pay</em></h1>
+      <p id="school-tag">Theresoft School — Canteen Fee System</p>
+    </div>
+    <div class="lcard">
+      <div class="role-row">
+        <button class="role-btn on" onclick="setRole('teacher',this)">👩‍🏫 Teacher</button>
+        <button class="role-btn" onclick="setRole('admin',this)">🔐 Admin</button>
+      </div>
+      <div class="lerr" id="lerr"></div>
+      <div class="lf"><label>Username</label><input id="l-u" placeholder="Enter username" autocomplete="username" inputmode="text"></div>
+      <div class="lf"><label>Password</label><input id="l-p" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="login-btn" onclick="doLogin()">Sign in →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TEACHER SCREEN ══════════ -->
+<div class="screen" id="sc-teacher">
+  <div class="topbar">
+    <div class="tb-brand">Canteen<em>Pay</em></div>
+    <div class="tb-right">
+      <div class="sync-pill"><div class="sdot" id="t-sdot"></div></div>
+      <div class="tb-user"><div class="tb-av" id="t-av"></div><span class="tb-name" id="t-name"></span></div>
+      <div class="ico-btn" onclick="doLogout()">⏻</div>
+    </div>
+  </div>
+
+  <!-- date + stats -->
+  <div class="strip">
+    <div class="strip-top">
+      <span class="date-lbl" id="t-dlbl"></span>
+      <input type="date" class="d-input" id="t-date" onchange="onDate()">
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="s-n"   id="st-tot">—</div><div class="s-l">Total</div></div>
+      <div class="stat"><div class="s-n g" id="st-day">—</div><div class="s-l">Daily</div></div>
+      <div class="stat"><div class="s-n b" id="st-wk" >—</div><div class="s-l">Weekly</div></div>
+      <div class="stat"><div class="s-n p" id="st-tm" >—</div><div class="s-l">Term</div></div>
+      <div class="stat"><div class="s-n a" id="st-ate">—</div><div class="s-l">Ate/No💰</div></div>
+    </div>
+  </div>
+
+  <!-- filter + search + add student -->
+  <div class="ftabs">
+    <button class="ft on" onclick="setFilter('all',this)">All</button>
+    <button class="ft" onclick="setFilter('unpaid',this)">Unpaid</button>
+    <button class="ft" onclick="setFilter('daily',this)">Daily</button>
+    <button class="ft" onclick="setFilter('weekly',this)">Weekly</button>
+    <button class="ft" onclick="setFilter('term',this)">Term</button>
+    <button class="ft" onclick="setFilter('ate',this)">Ate/No pay</button>
+  </div>
+  <div class="sw">
+    <input class="s-inp" id="t-search" placeholder="Search student…" oninput="renderRoll()" autocomplete="off">
+    <button class="btn sm pr" onclick="openTeacherAddStudent()">+ Student</button>
+  </div>
+
+  <!-- ROLL -->
+  <div class="roll" id="roll"></div>
+
+  <!-- FAB: mark all daily -->
+  <button class="fab" onclick="markAllDaily()">✓ Mark all paid (daily)</button>
+</div>
+
+<!-- ══════════ ADMIN DASHBOARD ══════════ -->
+<div class="screen" id="sc-admin">
+  <div class="topbar">
+    <div class="tb-brand">Canteen<em>Pay</em></div>
+    <div class="tb-right">
+      <div class="sync-pill"><div class="sdot"></div></div>
+      <div class="tb-user"><div class="tb-av" id="a-av"></div><span class="tb-name" id="a-name"></span></div>
+      <div class="ico-btn" onclick="doLogout()">⏻</div>
+    </div>
+  </div>
+  <div class="abody" id="admin-body"></div>
+</div>
+
+<!-- ══════════ BACKEND ══════════ -->
+<div class="screen" id="sc-backend">
+  <div class="topbar">
+    <div class="tb-brand">Canteen<em>Pay</em></div>
+    <div class="tb-right">
+      <div class="tb-user"><div class="tb-av" id="b-av"></div><span class="tb-name" id="b-name"></span></div>
+      <div class="ico-btn" onclick="doLogout()">⏻</div>
+    </div>
+  </div>
+  <div class="bbody" id="backend-body"></div>
+</div>
+
+<!-- ══════════ BOTTOM NAV ══════════ -->
+<div class="bnav" id="bnav">
+  <div class="bnav-inner">
+    <button class="bnav-tab on" onclick="showTab('sc-admin',this)">
+      <span class="ni">📊</span><span>Dashboard</span>
+    </button>
+    <button class="bnav-tab" onclick="showTab('sc-backend',this)">
+      <span class="ni">🔐</span><span>Backend</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DRAWERS
+══════════════════════════════════════ -->
+
+<!-- Teacher: add student to own class -->
+<div class="ov" id="ov-t-stu">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt">Add student to <span id="t-add-cls-name"></span></div>
+    <div class="db">
+      <div class="f-row" style="margin-bottom:.9rem">
+        <div><label class="f-lbl">Student ID</label><input class="f-inp" id="ts-id" placeholder="e.g. P1-045"></div>
+        <div><label class="f-lbl">Class</label><input class="f-inp" id="ts-cls-disp" readonly style="background:var(--bg4);color:var(--t2)"></div>
+      </div>
+      <div class="f-group"><label>Full name</label><input class="f-inp" id="ts-name" placeholder="Student full name"></div>
+      <div class="f-group"><label>Parent contact</label><input class="f-inp" id="ts-contact" placeholder="0244 123 456" inputmode="tel"></div>
+    </div>
+    <div class="da" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn full" onclick="closeOv('ov-t-stu')">Cancel</button>
+      <button class="btn pr full" onclick="saveStudentTeacher()">Add student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: add teacher -->
+<div class="ov" id="ov-add-teacher">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt">Add teacher account</div>
+    <div class="db">
+      <div class="f-row" style="margin-bottom:.9rem">
+        <div><label class="f-lbl">Full name</label><input class="f-inp" id="nt-name" placeholder="e.g. Mrs. Asante"></div>
+        <div><label class="f-lbl">Username</label><input class="f-inp" id="nt-user" placeholder="e.g. asante" autocomplete="off"></div>
+      </div>
+      <div class="f-row" style="margin-bottom:.9rem">
+        <div><label class="f-lbl">Password</label><input class="f-inp" type="password" id="nt-pass" placeholder="Set a password" autocomplete="new-password"></div>
+        <div><label class="f-lbl">Assign class</label><select class="f-inp" id="nt-cls"></select></div>
+      </div>
+      <div id="nt-err" style="display:none;background:var(--rl);border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);padding:9px 13px;color:var(--red);font-size:13px"></div>
+    </div>
+    <div class="da" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn full" onclick="closeOv('ov-add-teacher')">Cancel</button>
+      <button class="btn pr full" onclick="saveTeacher()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: edit teacher -->
+<div class="ov" id="ov-edit-teacher">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt" id="et-title">Edit teacher</div>
+    <div class="db">
+      <div class="f-group"><label>Assign to class</label><select class="f-inp" id="et-cls"></select></div>
+      <div class="f-group"><label>New password (leave blank to keep)</label><input class="f-inp" type="password" id="et-pass" placeholder="New password…" autocomplete="new-password"></div>
+    </div>
+    <div class="da" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn full" onclick="closeOv('ov-edit-teacher')">Cancel</button>
+      <button class="btn pr full" onclick="saveEditTeacher()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: add student (any class) -->
+<div class="ov" id="ov-add-student">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt">Add student</div>
+    <div class="db">
+      <div class="f-row" style="margin-bottom:.9rem">
+        <div><label class="f-lbl">Student ID</label><input class="f-inp" id="ns-id" placeholder="e.g. P1A-045"></div>
+        <div><label class="f-lbl">Class</label><select class="f-inp" id="ns-cls"></select></div>
+      </div>
+      <div class="f-group"><label>Full name</label><input class="f-inp" id="ns-name" placeholder="Student full name"></div>
+      <div class="f-group"><label>Parent contact</label><input class="f-inp" id="ns-contact" placeholder="0244 123 456" inputmode="tel"></div>
+    </div>
+    <div class="da" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn full" onclick="closeOv('ov-add-student')">Cancel</button>
+      <button class="btn pr full" onclick="saveStudentAdmin()">Add student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: add class -->
+<div class="ov" id="ov-add-class">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt">Add class</div>
+    <div class="db">
+      <div class="f-row" style="margin-bottom:.9rem">
+        <div><label class="f-lbl">Class name</label><input class="f-inp" id="nc-name" placeholder="e.g. Primary 1A"></div>
+        <div><label class="f-lbl">Level</label><select class="f-inp" id="nc-lvl"><option value="primary">Primary</option><option value="jhs">JHS</option></select></div>
+      </div>
+    </div>
+    <div class="da" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn full" onclick="closeOv('ov-add-class')">Cancel</button>
+      <button class="btn pr full" onclick="saveClass()">Add class</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: IMPORT CLASS LIST -->
+<div class="ov" id="ov-import">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt">📋 Import class list</div>
+    <div class="db">
+
+      <!-- method tabs -->
+      <div class="import-tabs">
+        <button class="imp-tab on" onclick="setImportTab('paste',this)">Paste list</button>
+        <button class="imp-tab" onclick="setImportTab('url',this)">From URL/link</button>
+        <button class="imp-tab" onclick="setImportTab('csv',this)">Upload CSV</button>
+      </div>
+
+      <!-- PASTE tab -->
+      <div id="imp-paste">
+        <div class="f-group">
+          <label>Assign to class</label>
+          <select class="f-inp" id="imp-cls"></select>
+        </div>
+        <label class="f-lbl" style="margin-bottom:6px">Paste student names (one per line)</label>
+        <textarea class="imp-area" id="imp-text" placeholder="Abena Asante&#10;Kofi Mensah&#10;Ama Boateng&#10;Yaw Owusu&#10;...&#10;&#10;You can also paste: ID, Name, Contact&#10;P1-001, Abena Asante, 0244 111 001" oninput="previewImport()"></textarea>
+        <div class="imp-hint">
+          Supported formats:<br>
+          • Just names: <code>Abena Asante</code><br>
+          • ID + Name: <code>P1-001, Abena Asante</code><br>
+          • ID + Name + Contact: <code>P1-001, Abena Asante, 0244 111 001</code>
+        </div>
+        <div id="imp-preview" style="display:none"></div>
+      </div>
+
+      <!-- URL tab -->
+      <div id="imp-url" style="display:none">
+        <div class="f-group">
+          <label>Assign to class</label>
+          <select class="f-inp" id="imp-url-cls"></select>
+        </div>
+        <div class="f-group">
+          <label>Google Sheets / CSV URL</label>
+          <input class="f-inp" id="imp-url-inp" placeholder="https://docs.google.com/spreadsheets/..." oninput="previewURL()">
+        </div>
+        <div style="background:var(--bl);border:1px solid rgba(59,130,246,.3);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--blue);margin-bottom:10px">
+          <b>How to get a Google Sheets URL:</b><br>
+          1. Open your Google Sheet<br>
+          2. File → Share → Publish to web<br>
+          3. Choose "CSV" format → Publish<br>
+          4. Copy the link and paste it here
+        </div>
+        <div id="url-status" style="font-size:12px;color:var(--t3)"></div>
+        <div id="imp-url-preview" style="display:none"></div>
+      </div>
+
+      <!-- CSV UPLOAD tab -->
+      <div id="imp-csv" style="display:none">
+        <div class="f-group">
+          <label>Assign to class</label>
+          <select class="f-inp" id="imp-csv-cls"></select>
+        </div>
+        <div style="border:2px dashed var(--border2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s" id="csv-drop" onclick="document.getElementById('csv-file').click()">
+          <div style="font-size:30px;margin-bottom:8px">📄</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Tap to choose CSV file</div>
+          <div style="font-size:11px;color:var(--t3)">Or drag and drop here</div>
+          <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="handleCSVFile(this)">
+        </div>
+        <div id="imp-csv-preview" style="display:none;margin-top:10px"></div>
+      </div>
+
+    </div>
+    <div class="da" style="display:flex;flex-direction:column;gap:8px">
+      <div id="imp-count" style="font-size:12px;color:var(--t3);text-align:center"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn full" onclick="closeOv('ov-import')">Cancel</button>
+        <button class="btn pr full" id="imp-btn" onclick="doImport()" disabled style="opacity:.5">Import students</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- weekly weeks selector -->
+<div class="ov" id="ov-weeks">
+  <div class="drawer" onclick="e=>e.stopPropagation()">
+    <div class="dh"></div>
+    <div class="dt" id="wk-title">Weekly payment</div>
+    <div class="db">
+      <p style="color:var(--t2);font-size:13px;margin-bottom:16px">How many weeks is this student paying for?</p>
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center;padding:16px 0">
+        <button class="btn" style="width:48px;height:48px;border-radius:50%;font-size:22px;padding:0" onclick="adjustWeeks(-1)">−</button>
+        <div style="text-align:center">
+          <div id="wk-count" style="font-size:48px;font-weight:800;font-family:var(--mono);color:var(--blue);line-height:1">1</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">week(s)</div>
+        </div>
+        <button class="btn" style="width:48px;height:48px;border-radius:50%;font-size:22px;padding:0" onclick="adjustWeeks(1)">+</button>
+      </div>
+      <div id="wk-amount" style="text-align:center;font-size:18px;font-weight:800;color:var(--green);font-family:var(--mono);margin-bottom:8px"></div>
+      <div id="wk-history" style="background:var(--bg3);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--t3)"></div>
+    </div>
+    <div class="da" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn full" onclick="closeOv('ov-weeks')">Cancel</button>
+      <button class="btn bl full" onclick="confirmWeekly()">Confirm weekly</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════
+   DATABASE
+═══════════════════════════════════════════════════════ */
+const DBKEY = 'canteenpay_v4';
+
+const SEED = {
+  schoolName: 'Theresoft School',
+  fees: { daily: 3, weekly: 15, term: 150 },
+  classes: [
+    {id:'c1',name:'Primary 1',level:'primary'},
+    {id:'c2',name:'Primary 2',level:'primary'},
+    {id:'c3',name:'Primary 3',level:'primary'},
+    {id:'c4',name:'Primary 4',level:'primary'},
+    {id:'c5',name:'Primary 5',level:'primary'},
+    {id:'c6',name:'Primary 6',level:'primary'},
+    {id:'c7',name:'JHS 1',level:'jhs'},
+    {id:'c8',name:'JHS 2',level:'jhs'},
+    {id:'c9',name:'JHS 3',level:'jhs'},
+  ],
+  users: [
+    {id:'u0',username:'admin',  password:'admin123',name:'Head Admin',         role:'admin',   classId:null},
+    {id:'u1',username:'p1',     password:'pass1',   name:'Primary 1 Teacher', role:'teacher', classId:'c1'},
+    {id:'u2',username:'p2',     password:'pass2',   name:'Primary 2 Teacher', role:'teacher', classId:'c2'},
+    {id:'u3',username:'p3',     password:'pass3',   name:'Primary 3 Teacher', role:'teacher', classId:'c3'},
+    {id:'u4',username:'p4',     password:'pass4',   name:'Primary 4 Teacher', role:'teacher', classId:'c4'},
+    {id:'u5',username:'p5',     password:'pass5',   name:'Primary 5 Teacher', role:'teacher', classId:'c5'},
+    {id:'u6',username:'p6',     password:'pass6',   name:'Primary 6 Teacher', role:'teacher', classId:'c6'},
+    {id:'u7',username:'j1',     password:'pass7',   name:'JHS 1 Teacher',     role:'teacher', classId:'c7'},
+    {id:'u8',username:'j2',     password:'pass8',   name:'JHS 2 Teacher',     role:'teacher', classId:'c8'},
+    {id:'u9',username:'j3',     password:'pass9',   name:'JHS 3 Teacher',     role:'teacher', classId:'c9'},
+  ],
+  students: [
+    {id:'s001',studentId:'P1-001',name:'Abena Asante',    classId:'c1',contact:'0244 111 001'},
+    {id:'s002',studentId:'P1-002',name:'Kofi Mensah',     classId:'c1',contact:'0244 111 002'},
+    {id:'s003',studentId:'P1-003',name:'Ama Boateng',     classId:'c1',contact:'0277 222 003'},
+    {id:'s004',studentId:'P1-004',name:'Yaw Owusu',       classId:'c1',contact:'0244 333 004'},
+    {id:'s005',studentId:'P1-005',name:'Adwoa Darko',     classId:'c1',contact:'0501 444 005'},
+    {id:'s006',studentId:'P2-001',name:'Kwame Adjei',     classId:'c2',contact:'0277 555 001'},
+    {id:'s007',studentId:'P2-002',name:'Akosua Frimpong', classId:'c2',contact:'0244 666 002'},
+    {id:'s008',studentId:'P2-003',name:'Fiifi Asante',    classId:'c2',contact:'0501 777 003'},
+    {id:'s009',studentId:'P3-001',name:'Nana Ama Boah',   classId:'c3',contact:'0277 111 001'},
+    {id:'s010',studentId:'P3-002',name:'Elikem Nukunu',   classId:'c3',contact:'0244 222 002'},
+    {id:'s011',studentId:'P4-001',name:'Abena Oppong',    classId:'c4',contact:'0244 444 001'},
+    {id:'s012',studentId:'P4-002',name:'Kojo Boakye',     classId:'c4',contact:'0277 555 002'},
+    {id:'s013',studentId:'P5-001',name:'Yaw Poku',        classId:'c5',contact:'0277 777 001'},
+    {id:'s014',studentId:'P5-002',name:'Adwoa Mensah',    classId:'c5',contact:'0244 888 002'},
+    {id:'s015',studentId:'P6-001',name:'Akosua Ampofo',   classId:'c6',contact:'0277 000 001'},
+    {id:'s016',studentId:'J1-001',name:'Abena Opoku',     classId:'c7',contact:'0244 222 001'},
+    {id:'s017',studentId:'J1-002',name:'Kojo Asante',     classId:'c7',contact:'0277 333 002'},
+    {id:'s018',studentId:'J2-001',name:'Ama Quartey',     classId:'c8',contact:'0244 666 001'},
+    {id:'s019',studentId:'J2-002',name:'Kweku Frimpong',  classId:'c8',contact:'0277 777 002'},
+    {id:'s020',studentId:'J3-001',name:'Yaw Asante',      classId:'c9',contact:'0277 999 001'},
+  ],
+  // payments: {id, studentId, classId, teacherName, type, weeks, amount, date, status, ts}
+  // type: 'daily'|'weekly'|'term'   status: 'paid'|'ate'
+  // weeks: number (for weekly payments, cumulative total weeks paid)
+  payments: []
+};
+
+let DB = (() => {
+  try { const r = localStorage.getItem(DBKEY); if (r) return JSON.parse(r); }
+  catch(e) {}
+  return JSON.parse(JSON.stringify(SEED));
+})();
+
+function save() { try { localStorage.setItem(DBKEY, JSON.stringify(DB)); } catch(e){} }
+
+/* ── DB helpers ── */
+const getClass  = id  => DB.classes.find(c => c.id === id);
+const clsName   = id  => getClass(id)?.name || id;
+const studs     = cid => cid ? DB.students.filter(s => s.classId === cid) : DB.students;
+const fees      = ()  => DB.fees;
+
+// Get today's payment record for a student (null if nothing today)
+function getTodayPayment(sid, date) {
+  return DB.payments.find(p => p.studentId === sid && p.date === date) || null;
+}
+
+// Get ALL payments for a student (for weekly history)
+function getStudentPayments(sid) {
+  return DB.payments.filter(p => p.studentId === sid).sort((a,b) => b.date.localeCompare(a.date));
+}
+
+// Get total weeks paid by a student (cumulative across all weekly payments)
+function getTotalWeeksPaid(sid) {
+  return DB.payments
+    .filter(p => p.studentId === sid && p.type === 'weekly' && p.status === 'paid')
+    .reduce((sum, p) => sum + (p.weeks || 1), 0);
+}
+
+// Set/overwrite today's payment
+function setPayment(sid, date, status, type, weeks, amount, teacherName) {
+  DB.payments = DB.payments.filter(p => !(p.studentId === sid && p.date === date));
+  const s = DB.students.find(x => x.id === sid);
+  DB.payments.push({
+    id: 'p' + Date.now() + Math.random().toString(36).slice(2,5),
+    studentId: sid, classId: s?.classId || '',
+    teacherName, type, weeks: weeks || 1,
+    amount: amount || 0, date, status,
+    ts: new Date().toISOString()
+  });
+  save();
+}
+
+function clearPayment(sid, date) {
+  DB.payments = DB.payments.filter(p => !(p.studentId === sid && p.date === date));
+  save();
+}
+
+/* ── utils ── */
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(s) {
+  if (!s) return '';
+  return new Date(s + 'T00:00:00').toLocaleDateString('en-GH', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function weekStart(d) {
+  const dt = new Date(d + 'T00:00:00');
+  const day = dt.getDay();
+  dt.setDate(dt.getDate() - (day === 0 ? 6 : day - 1));
+  return dt.toISOString().split('T')[0];
+}
+
+/* ═══════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════ */
+let CU = null;
+let loginRole = 'teacher';
+
+function setRole(role, el) {
+  loginRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function doLogin() {
+  const u = document.getElementById('l-u').value.trim().toLowerCase();
+  const p = document.getElementById('l-p').value;
+  const err = document.getElementById('lerr');
+  if (!u || !p) { showErr('Please enter your username and password.'); return; }
+  const profile = DB.users.find(x => x.username === u && x.password === p && x.role === loginRole);
+  if (!profile) { showErr('Incorrect username or password.'); return; }
+  CU = profile;
+  err.style.display = 'none';
+  bootApp();
+}
+
+function showErr(m) {
+  const e = document.getElementById('lerr'); e.textContent = m; e.style.display = 'block';
+}
+
+function doLogout() {
+  CU = null;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('bnav').classList.remove('show');
+  document.getElementById('sc-login').classList.add('active');
+  document.getElementById('l-u').value = '';
+  document.getElementById('l-p').value = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('sc-login').classList.contains('active')) doLogin();
+});
+
+/* ═══════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════ */
+function bootApp() {
+  document.getElementById('school-tag').textContent = (DB.schoolName || 'School') + ' — Canteen Fee System';
+  const av = CU.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+  if (CU.role === 'teacher') {
+    document.getElementById('t-av').textContent   = av;
+    document.getElementById('t-name').textContent = CU.name;
+    document.getElementById('sc-login').classList.remove('active');
+    document.getElementById('sc-teacher').classList.add('active');
+    // pre-fill teacher class name in add-student drawer
+    document.getElementById('t-add-cls-name').textContent = clsName(CU.classId);
+    document.getElementById('ts-cls-disp').value = clsName(CU.classId);
+    document.getElementById('t-date').value = todayISO();
+    onDate();
+  } else {
+    ['a','b'].forEach(x => {
+      document.getElementById(x+'-av').textContent   = av;
+      document.getElementById(x+'-name').textContent = CU.name;
+    });
+    document.getElementById('sc-login').classList.remove('active');
+    document.getElementById('sc-admin').classList.add('active');
+    document.getElementById('bnav').classList.add('show');
+    renderAdmin();
+    renderBackend();
+  }
+  populateAllSelects();
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEACHER VIEW — RENDER ROLL
+═══════════════════════════════════════════════════════ */
+let tFilter = 'all';
+
+function onDate() {
+  const d = document.getElementById('t-date').value;
+  document.getElementById('t-dlbl').textContent = fmtDate(d);
+  renderRoll();
+}
+
+function setFilter(f, el) {
+  tFilter = f;
+  document.querySelectorAll('.ft').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderRoll();
+}
+
+function renderRoll() {
+  const date = document.getElementById('t-date').value;
+  const q    = (document.getElementById('t-search').value || '').toLowerCase();
+  const list = studs(CU.classId);
+
+  // count by type
+  let cDay = 0, cWk = 0, cTm = 0, cAte = 0;
+  list.forEach(s => {
+    const pay = getTodayPayment(s.id, date);
+    if (!pay) return;
+    if (pay.status === 'ate') { cAte++; return; }
+    if (pay.type === 'daily')  cDay++;
+    if (pay.type === 'weekly') cWk++;
+    if (pay.type === 'term')   cTm++;
+  });
+
+  document.getElementById('st-tot').textContent = list.length;
+  document.getElementById('st-day').textContent = cDay;
+  document.getElementById('st-wk').textContent  = cWk;
+  document.getElementById('st-tm').textContent  = cTm;
+  document.getElementById('st-ate').textContent = cAte;
+
+  const visible = list.filter(s => {
+    const pay = getTodayPayment(s.id, date);
+    const st  = pay ? pay.status : null;
+    const tp  = pay ? pay.type   : null;
+    if (tFilter === 'unpaid' && pay) return false;
+    if (tFilter === 'daily'  && !(st === 'paid' && tp === 'daily'))  return false;
+    if (tFilter === 'weekly' && !(st === 'paid' && tp === 'weekly')) return false;
+    if (tFilter === 'term'   && !(st === 'paid' && tp === 'term'))   return false;
+    if (tFilter === 'ate'    && st !== 'ate')  return false;
+    if (q && !s.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const roll = document.getElementById('roll');
+  if (!visible.length) {
+    roll.innerHTML = `<div class="empty"><div class="ei">${q ? '🔍' : '🎉'}</div><p>${q ? 'No match found' : 'No students in this filter'}</p></div>`;
+    return;
+  }
+
+  roll.innerHTML = visible.map((s, i) => buildStudentCard(s, i + 1, date)).join('');
+}
+
+function buildStudentCard(s, num, date) {
+  const pay       = getTodayPayment(s.id, date);
+  const st        = pay?.status || null;
+  const type      = pay?.type   || null;
+  const totalWks  = getTotalWeeksPaid(s.id);
+
+  // card border class
+  let cardCls = '';
+  if (st === 'ate') cardCls = 'ate';
+  else if (st === 'paid' && type === 'weekly') cardCls = 'weekly';
+  else if (st === 'paid' && type === 'term')   cardCls = 'term';
+  else if (st === 'paid' && type === 'daily')  cardCls = 'paid';
+
+  // status badge
+  let badge = '';
+  if (st === 'paid' && type === 'daily')  badge = `<span class="s-badge sb-paid">✓ Daily paid</span>`;
+  if (st === 'paid' && type === 'weekly') badge = `<span class="s-badge sb-weekly">📆 Weekly — ${pay.weeks} wk${pay.weeks>1?'s':''} (Total: ${totalWks} wks)</span>`;
+  if (st === 'paid' && type === 'term')   badge = `<span class="s-badge sb-term">📋 Term paid</span>`;
+  if (st === 'ate')                       badge = `<span class="s-badge sb-ate">🍽️ Ate / No pay</span>`;
+
+  // button active classes
+  const dAct  = (st === 'paid' && type === 'daily')  ? 'act-day'  : '';
+  const wAct  = (st === 'paid' && type === 'weekly') ? 'act-week' : '';
+  const tAct  = (st === 'paid' && type === 'term')   ? 'act-term' : '';
+  const ateAct= (st === 'ate')                        ? 'act-ate'  : '';
+
+  // weekly sub-label: show total weeks
+  const wkSub = totalWks > 0
+    ? `<span class="week-count">${totalWks} wk${totalWks>1?'s':''}</span>`
+    : `<span class="ac-sub">total: 0</span>`;
+
+  return `<div class="sc ${cardCls}" id="sc-${s.id}">
+    <div class="sc-top">
+      <div class="sc-num">${num}</div>
+      <div class="sc-info">
+        <div class="sc-name">${s.name}</div>
+        <div class="sc-meta">
+          <span class="sc-id">${s.studentId}</span>
+          ${s.contact ? `<span class="sc-contact">📞 ${s.contact}</span>` : ''}
+          ${badge}
+        </div>
+      </div>
+    </div>
+    <div class="sc-actions">
+      <button class="ac-btn ${dAct}" onclick="tapAction('${s.id}','daily','${date}')">
+        <span class="ac-icon">☀️</span>
+        <span class="ac-lbl">Daily</span>
+        <span class="ac-sub">GH₵${fees().daily}</span>
+      </button>
+      <button class="ac-btn ${wAct}" onclick="tapAction('${s.id}','weekly','${date}')">
+        <span class="ac-icon">📆</span>
+        <span class="ac-lbl">Weekly</span>
+        ${wkSub}
+      </button>
+      <button class="ac-btn ${tAct}" onclick="tapAction('${s.id}','term','${date}')">
+        <span class="ac-icon">📋</span>
+        <span class="ac-lbl">Term</span>
+        <span class="ac-sub">GH₵${fees().term}</span>
+      </button>
+      <button class="ac-btn ${ateAct}" onclick="tapAction('${s.id}','ate','${date}')">
+        <span class="ac-icon">🍽️</span>
+        <span class="ac-lbl">Ate/No💰</span>
+        <span class="ac-sub">no charge</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ── TAP ACTION ── */
+// Tap active button = undo. Tap inactive = apply (weekly opens selector)
+function tapAction(sid, type, date) {
+  const pay = getTodayPayment(sid, date);
+  const st  = pay?.status || null;
+  const cur = pay?.type   || null;
+
+  // If already this status → undo/clear
+  if (type === 'ate'  && st === 'ate') { clearPayment(sid, date); renderRoll(); toast('Cleared'); return; }
+  if (type === 'daily' && st === 'paid' && cur === 'daily')  { clearPayment(sid, date); renderRoll(); toast('Daily cleared'); return; }
+  if (type === 'term'  && st === 'paid' && cur === 'term')   { clearPayment(sid, date); renderRoll(); toast('Term cleared'); return; }
+  if (type === 'weekly'&& st === 'paid' && cur === 'weekly') { clearPayment(sid, date); renderRoll(); toast('Weekly cleared'); return; }
+
+  if (type === 'ate') {
+    setPayment(sid, date, 'ate', 'daily', 1, 0, CU.name);
+    renderRoll(); toast('🍽️ Marked: ate / no pay'); return;
+  }
+  if (type === 'daily') {
+    const f = fees();
+    setPayment(sid, date, 'paid', 'daily', 1, f.daily, CU.name);
+    renderRoll(); toast('✓ Daily paid'); return;
+  }
+  if (type === 'term') {
+    const f = fees();
+    setPayment(sid, date, 'paid', 'term', 1, f.term, CU.name);
+    renderRoll(); toast('📋 Term paid'); return;
+  }
+  if (type === 'weekly') {
+    openWeeksDrawer(sid, date);
+  }
+}
+
+/* ── WEEKLY DRAWER ── */
+let _wkSid = null, _wkDate = null, _wkCount = 1;
+
+function openWeeksDrawer(sid, date) {
+  _wkSid = sid;
+  _wkDate = date;
+  _wkCount = 1;
+  const s = DB.students.find(x => x.id === sid);
+  document.getElementById('wk-title').textContent = `Weekly — ${s?.name || ''}`;
+  updateWeeksUI();
+  // show history
+  const hist = getStudentPayments(sid).filter(p => p.type === 'weekly' && p.status === 'paid');
+  const totalWk = getTotalWeeksPaid(sid);
+  const histEl = document.getElementById('wk-history');
+  if (hist.length) {
+    histEl.innerHTML = `<b style="color:var(--text)">Payment history:</b><br>
+      Total weeks paid so far: <b style="color:var(--blue)">${totalWk} week${totalWk!==1?'s':''}</b><br><br>
+      ${hist.slice(0,5).map(p=>`${p.date}: ${p.weeks} wk${p.weeks>1?'s':''} — GH₵${p.amount}`).join('<br>')}`;
+  } else {
+    histEl.textContent = 'No weekly payments recorded yet for this student.';
+  }
+  openOv('ov-weeks');
+}
+
+function adjustWeeks(delta) {
+  _wkCount = Math.max(1, Math.min(20, _wkCount + delta));
+  updateWeeksUI();
+}
+
+function updateWeeksUI() {
+  const f = fees();
+  const total = _wkCount * f.weekly;
+  document.getElementById('wk-count').textContent  = _wkCount;
+  document.getElementById('wk-amount').textContent = `GH₵ ${total.toFixed(2)} (${_wkCount} × GH₵${f.weekly})`;
+}
+
+function confirmWeekly() {
+  if (!_wkSid) return;
+  const f = fees();
+  const total = _wkCount * f.weekly;
+  setPayment(_wkSid, _wkDate, 'paid', 'weekly', _wkCount, total, CU.name);
+  closeOv('ov-weeks');
+  renderRoll();
+  const totalNow = getTotalWeeksPaid(_wkSid);
+  toast(`📆 ${_wkCount} week${_wkCount>1?'s':''} paid · Total: ${totalNow} wks`);
+}
+
+function markAllDaily() {
+  const date = document.getElementById('t-date').value;
+  const f    = fees();
+  let count  = 0;
+  studs(CU.classId).forEach(s => {
+    if (!getTodayPayment(s.id, date)) {
+      setPayment(s.id, date, 'paid', 'daily', 1, f.daily, CU.name);
+      count++;
+    }
+  });
+  renderRoll();
+  toast(`✓ ${count} student${count!==1?'s':''} marked paid (daily)`);
+}
+
+/* teacher adds student to own class */
+function openTeacherAddStudent() {
+  document.getElementById('ts-id').value = '';
+  document.getElementById('ts-name').value = '';
+  document.getElementById('ts-contact').value = '';
+  openOv('ov-t-stu');
+}
+
+function saveStudentTeacher() {
+  const sid     = document.getElementById('ts-id').value.trim();
+  const name    = document.getElementById('ts-name').value.trim();
+  const contact = document.getElementById('ts-contact').value.trim();
+  if (!name) { toast('Student name is required', true); return; }
+  const id = sid || ('P-' + Date.now().toString().slice(-5));
+  DB.students.push({ id: 'stu_' + Date.now(), studentId: id, name, classId: CU.classId, contact });
+  save();
+  closeOv('ov-t-stu');
+  clearInputs(['ts-id','ts-name','ts-contact']);
+  renderRoll();
+  toast(`${name} added to your class`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ADMIN DASHBOARD
+═══════════════════════════════════════════════════════ */
+function renderAdmin() {
+  const today   = todayISO();
+  const all     = studs();
+  const f       = fees();
+  const todayPx = DB.payments.filter(p => p.date === today);
+  const paid    = todayPx.filter(p => p.status === 'paid');
+  const ate     = todayPx.filter(p => p.status === 'ate');
+  const paidAmt = paid.reduce((a,p) => a + (p.amount||0), 0);
+  const paidIds = new Set(paid.map(p => p.studentId));
+  const ateIds  = new Set(ate.map(p => p.studentId));
+  const unpaid  = all.length - paidIds.size - ateIds.size;
+  const ws      = weekStart(today);
+  const weekAmt = DB.payments.filter(p => p.status==='paid' && p.date>=ws && p.date<=today).reduce((a,p)=>a+(p.amount||0),0);
+  const termAmt = DB.payments.filter(p => p.status==='paid').reduce((a,p)=>a+(p.amount||0),0);
+  const rate    = all.length ? Math.round(paidIds.size/all.length*100) : 0;
+
+  const avCls = ['av-g','av-b','av-p','av-a'];
+  const breakdown = DB.classes.map((c,i) => {
+    const cs    = studs(c.id);
+    const cp    = DB.payments.filter(p => p.classId===c.id && p.date===today);
+    const cpaid = cp.filter(p => p.status==='paid');
+    const cate  = cp.filter(p => p.status==='ate');
+    const camt  = cpaid.reduce((a,p)=>a+(p.amount||0),0);
+    const pct   = cs.length ? Math.round(cpaid.length/cs.length*100) : 0;
+    const tch   = DB.users.find(u => u.classId===c.id && u.role==='teacher');
+    const tname = tch ? tch.name : 'Unassigned';
+    const av    = tname.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="tc">
+      <div class="tc-head">
+        <div class="tc-av ${avCls[i%4]}">${av}</div>
+        <div class="tc-info">
+          <div class="tc-name">${tname}</div>
+          <div class="tc-sub">${c.name} · ${cs.length} students</div>
+        </div>
+        <div class="tc-amt">GH₵${camt.toFixed(0)}</div>
+      </div>
+      <div class="prog"><div class="prog-f" style="width:${pct}%"></div></div>
+      <div class="tc-stats">
+        <div class="tc-stat"><b>${cpaid.length}</b> paid</div>
+        <div class="tc-stat"><b>${cate.length}</b> ate/no💰</div>
+        <div class="tc-stat"><b>${cs.length-cpaid.length-cate.length}</b> unpaid</div>
+        <div class="tc-stat"><b>${pct}%</b> rate</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const logRows = DB.payments
+    .slice().sort((a,b)=>(b.ts||'').localeCompare(a.ts||''))
+    .slice(0,50)
+    .map(p => {
+      const s  = DB.students.find(x=>x.id===p.studentId);
+      const sp = p.status==='paid' ? `<span class="pill paid">Paid</span>` : `<span class="pill ate">Ate</span>`;
+      const tp = p.status==='paid'
+        ? p.type==='weekly'
+          ? `<span class="pill weekly">weekly ×${p.weeks}</span>`
+          : `<span class="pill ${p.type}">${p.type}</span>`
+        : '—';
+      return `<tr>
+        <td style="font-weight:700">${s?.name||'—'}</td>
+        <td style="color:var(--t3)">${clsName(p.classId)}</td>
+        <td style="color:var(--t3)">${p.teacherName||'—'}</td>
+        <td>${tp}</td>
+        <td style="font-family:var(--mono);color:var(--green)">GH₵${(p.amount||0).toFixed(2)}</td>
+        <td>${sp}</td>
+        <td style="color:var(--t3)">${p.date}</td>
+      </tr>`;
+    }).join('');
+
+  document.getElementById('admin-body').innerHTML = `
+    <div style="font-size:12px;color:var(--t3);font-weight:700;margin-bottom:12px">${fmtDate(today)}</div>
+    <div class="metrics">
+      <div class="mc g"><div class="mc-l">Collected today</div><div class="mc-v g">GH₵${paidAmt.toFixed(0)}</div></div>
+      <div class="mc b"><div class="mc-l">This week</div><div class="mc-v b">GH₵${weekAmt.toFixed(0)}</div></div>
+      <div class="mc"><div class="mc-l">Term total</div><div class="mc-v">GH₵${termAmt.toFixed(0)}</div></div>
+      <div class="mc r"><div class="mc-l">Unpaid today</div><div class="mc-v r">${unpaid}</div></div>
+      <div class="mc a"><div class="mc-l">Ate / no pay</div><div class="mc-v a">${ateIds.size}</div></div>
+      <div class="mc g"><div class="mc-l">Collection rate</div><div class="mc-v g">${rate}%</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-hd"><div class="sec-title">Teacher breakdown — today</div></div>
+      ${breakdown}
+    </div>
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-title">Recent payments</div>
+        <button class="btn sm" onclick="exportCSV()">↓ Export CSV</button>
+      </div>
+      <div class="log-wrap"><div class="log-scroll">
+        <table class="log-t">
+          <thead><tr><th>Student</th><th>Class</th><th>Teacher</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>${logRows||'<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:24px">No payments yet</td></tr>'}</tbody>
+        </table>
+      </div></div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BACKEND
+═══════════════════════════════════════════════════════ */
+function renderBackend() {
+  const f = fees();
+  const teachers = DB.users.filter(u => u.role==='teacher');
+
+  const teacherRows = teachers.length
+    ? teachers.map(t => `
+      <div class="tl-item">
+        <div class="tc-av av-g" style="width:38px;height:38px;font-size:12px">${t.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div class="tl-info">
+          <div class="tl-name">${t.name}</div>
+          <div class="tl-sub">${clsName(t.classId)} · @${t.username}</div>
+        </div>
+        <div class="tl-acts">
+          <button class="btn xs" onclick="openEditTeacher('${t.id}')">Edit</button>
+          <button class="btn xs dn" onclick="delTeacher('${t.id}')">✕</button>
+        </div>
+      </div>`).join('')
+    : '<div class="empty" style="padding:20px"><p>No teachers yet.</p></div>';
+
+  const clsPills = DB.classes.map(c =>
+    `<span class="pill daily" style="padding:5px 14px;font-size:12px;margin:3px">${c.name}</span>`
+  ).join('');
+
+  const stuCount = DB.students.length;
+  const stuList  = DB.students.map(s => `
+    <div class="stu-item">
+      <div class="stu-info">
+        <div class="stu-name">${s.name}</div>
+        <div class="stu-sub">${s.studentId} · ${clsName(s.classId)}${s.contact?' · '+s.contact:''}</div>
+      </div>
+      <button class="btn xs dn" onclick="delStudent('${s.id}')">✕</button>
+    </div>`).join('');
+
+  document.getElementById('backend-body').innerHTML = `
+    <div style="background:var(--al);border:1px solid rgba(245,158,11,.3);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:18px">
+      ⚠️ Admin-only area. Changes are immediate and permanent.
+    </div>
+
+    <div class="be-sec">
+      <div class="be-title">Fee rates — tap to edit</div>
+      <div class="fee-row">
+        <div class="fee-c"><div class="fee-lbl">Daily</div><input class="fee-inp" type="number" id="fd" value="${f.daily}" step="0.5" onchange="saveFees()" onblur="saveFees()"><div class="fee-unit">GH₵ / day</div></div>
+        <div class="fee-c"><div class="fee-lbl">Weekly (per week)</div><input class="fee-inp" type="number" id="fw" value="${f.weekly}" step="0.5" onchange="saveFees()" onblur="saveFees()"><div class="fee-unit">GH₵ × weeks</div></div>
+        <div class="fee-c"><div class="fee-lbl">Per term</div><input class="fee-inp" type="number" id="ft" value="${f.term}" step="1" onchange="saveFees()" onblur="saveFees()"><div class="fee-unit">GH₵ / term</div></div>
+      </div>
+    </div>
+
+    <div class="be-sec">
+      <div class="be-title">Teacher accounts</div>
+      ${teacherRows}
+      <button class="btn pr full" style="margin-top:8px" onclick="openOv('ov-add-teacher')">+ Add teacher</button>
+    </div>
+
+    <div class="be-sec">
+      <div class="be-title">Classes</div>
+      <div style="display:flex;flex-wrap:wrap;margin-bottom:12px">${clsPills}</div>
+      <button class="btn full" onclick="openOv('ov-add-class')">+ Add class</button>
+    </div>
+
+    <div class="be-sec">
+      <div class="be-title">Students — ${stuCount} total</div>
+
+      <!-- IMPORT CLASS LIST BUTTON -->
+      <div style="background:var(--bl);border:1px solid rgba(59,130,246,.3);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--blue)">📋 Import class list</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">Paste names, upload CSV, or load from Google Sheets URL</div>
+        </div>
+        <button class="btn bl" onclick="openImport()">Import list →</button>
+      </div>
+
+      <input class="f-inp" style="margin-bottom:10px" placeholder="Search students…" oninput="filterBEStudents(this.value)" id="be-s-search">
+      <div id="be-stu-list">${stuList}</div>
+      <button class="btn pr full" style="margin-top:10px" onclick="openAdminAddStudent()">+ Add student</button>
+    </div>`;
+
+  populateAllSelects();
+}
+
+function filterBEStudents(q) {
+  const rows = DB.students.filter(s =>
+    !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.studentId.toLowerCase().includes(q.toLowerCase())
+  );
+  document.getElementById('be-stu-list').innerHTML = rows.map(s => `
+    <div class="stu-item">
+      <div class="stu-info">
+        <div class="stu-name">${s.name}</div>
+        <div class="stu-sub">${s.studentId} · ${clsName(s.classId)}${s.contact?' · '+s.contact:''}</div>
+      </div>
+      <button class="btn xs dn" onclick="delStudent('${s.id}')">✕</button>
+    </div>`).join('');
+}
+
+function saveFees() {
+  DB.fees = {
+    daily:  parseFloat(document.getElementById('fd').value)||3,
+    weekly: parseFloat(document.getElementById('fw').value)||15,
+    term:   parseFloat(document.getElementById('ft').value)||150
+  };
+  save(); toast('Fee rates saved');
+}
+
+/* ── TEACHER CRUD ── */
+function saveTeacher() {
+  const name  = document.getElementById('nt-name').value.trim();
+  const user  = document.getElementById('nt-user').value.trim().toLowerCase();
+  const pass  = document.getElementById('nt-pass').value;
+  const clsId = document.getElementById('nt-cls').value;
+  const errEl = document.getElementById('nt-err');
+  errEl.style.display = 'none';
+  if (!name||!user||!pass||!clsId) { errEl.textContent='All fields are required.'; errEl.style.display='block'; return; }
+  if (DB.users.find(u=>u.username===user)) { errEl.textContent=`Username "@${user}" is already taken.`; errEl.style.display='block'; return; }
+  DB.users.push({id:'u_'+Date.now(),username:user,password:pass,name,role:'teacher',classId:clsId});
+  save(); closeOv('ov-add-teacher'); clearInputs(['nt-name','nt-user','nt-pass']); renderBackend(); toast(`Teacher "${name}" created`);
+}
+
+let _editTid = null;
+function openEditTeacher(tid) {
+  _editTid = tid;
+  const t = DB.users.find(u=>u.id===tid);
+  document.getElementById('et-title').textContent = `Edit — ${t?.name}`;
+  document.getElementById('et-cls').innerHTML = DB.classes.map(c=>`<option value="${c.id}"${c.id===t?.classId?' selected':''}>${c.name}</option>`).join('');
+  document.getElementById('et-pass').value = '';
+  openOv('ov-edit-teacher');
+}
+function saveEditTeacher() {
+  if (!_editTid) return;
+  const t = DB.users.find(u=>u.id===_editTid);
+  if (t) {
+    t.classId = document.getElementById('et-cls').value;
+    const np = document.getElementById('et-pass').value;
+    if (np.trim()) t.password = np.trim();
+    save();
+  }
+  closeOv('ov-edit-teacher'); renderBackend(); toast('Teacher updated');
+}
+function delTeacher(id) {
+  if (!confirm('Remove this teacher account?')) return;
+  DB.users = DB.users.filter(u=>u.id!==id);
+  save(); renderBackend(); toast('Teacher removed');
+}
+
+/* ── STUDENT CRUD ── */
+function openAdminAddStudent() {
+  clearInputs(['ns-id','ns-name','ns-contact']);
+  openOv('ov-add-student');
+}
+function saveStudentAdmin() {
+  const sid     = document.getElementById('ns-id').value.trim();
+  const name    = document.getElementById('ns-name').value.trim();
+  const clsId   = document.getElementById('ns-cls').value;
+  const contact = document.getElementById('ns-contact').value.trim();
+  if (!name||!clsId) { toast('Name and class are required',true); return; }
+  const id = sid || ('S-'+Date.now().toString().slice(-5));
+  DB.students.push({id:'stu_'+Date.now(),studentId:id,name,classId:clsId,contact});
+  save(); closeOv('ov-add-student'); clearInputs(['ns-id','ns-name','ns-contact']); renderBackend(); toast('Student added');
+}
+function delStudent(id) {
+  if (!confirm('Remove this student?')) return;
+  DB.students = DB.students.filter(s=>s.id!==id);
+  save(); renderBackend(); toast('Student removed');
+}
+
+/* ── CLASS CRUD ── */
+function saveClass() {
+  const name  = document.getElementById('nc-name').value.trim();
+  const level = document.getElementById('nc-lvl').value;
+  if (!name) { toast('Class name required',true); return; }
+  DB.classes.push({id:'c_'+Date.now(),name,level});
+  save(); closeOv('ov-add-class'); clearInputs(['nc-name']); renderBackend(); toast(`Class "${name}" added`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   IMPORT CLASS LIST
+═══════════════════════════════════════════════════════ */
+let importMode = 'paste';
+let importedStudents = []; // parsed, ready to import
+
+function openImport() {
+  importedStudents = [];
+  document.getElementById('imp-text').value = '';
+  document.getElementById('imp-preview').style.display = 'none';
+  document.getElementById('imp-count').textContent = '';
+  document.getElementById('imp-btn').disabled = true;
+  document.getElementById('imp-btn').style.opacity = '.5';
+  document.getElementById('url-status').textContent = '';
+  openOv('ov-import');
+}
+
+function setImportTab(mode, el) {
+  importMode = mode;
+  document.querySelectorAll('.imp-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('imp-paste').style.display = mode==='paste' ? '' : 'none';
+  document.getElementById('imp-url').style.display   = mode==='url'   ? '' : 'none';
+  document.getElementById('imp-csv').style.display   = mode==='csv'   ? '' : 'none';
+  importedStudents = [];
+  updateImportBtn();
+}
+
+/* Parse raw text into student objects */
+function parseStudentText(raw, classId) {
+  const lines = raw.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  return lines.map((line, i) => {
+    const parts = line.split(/,|\t/).map(p=>p.trim());
+    let studentId, name, contact;
+    if (parts.length === 1) {
+      name = parts[0]; studentId = '';
+    } else if (parts.length === 2) {
+      // Could be "ID, Name" or "Name, Contact"
+      if (/^\d|^[A-Z]{1,3}-?\d/i.test(parts[0])) {
+        studentId = parts[0]; name = parts[1];
+      } else {
+        name = parts[0]; contact = parts[1]; studentId = '';
+      }
+    } else {
+      studentId = parts[0]; name = parts[1]; contact = parts[2];
+    }
+    return { id: 'imp_'+Date.now()+'_'+i, studentId: studentId||('IMP-'+(i+1)), name, classId, contact: contact||'' };
+  }).filter(s => s.name.length > 0);
+}
+
+function previewImport() {
+  const raw     = document.getElementById('imp-text').value;
+  const classId = document.getElementById('imp-cls').value;
+  if (!classId) { toast('Please select a class first', true); return; }
+  importedStudents = parseStudentText(raw, classId);
+  showImportPreview(importedStudents, 'imp-preview');
+  updateImportBtn();
+}
+
+function showImportPreview(students, containerId) {
+  const el = document.getElementById(containerId);
+  if (!students.length) { el.style.display='none'; return; }
+  el.style.display = '';
+  el.innerHTML = `<div class="imp-preview">
+    ${students.slice(0,20).map((s,i)=>`
+      <div class="imp-row">
+        <span class="imp-check">✓</span>
+        <span style="font-family:var(--mono);color:var(--t3);font-size:10px;min-width:60px">${s.studentId||'auto'}</span>
+        <span style="flex:1;font-weight:600">${s.name}</span>
+        ${s.contact?`<span style="color:var(--t3);font-size:10px">${s.contact}</span>`:''}
+      </div>`).join('')}
+    ${students.length>20?`<div style="text-align:center;color:var(--t3);padding:8px;font-size:11px">...and ${students.length-20} more</div>`:''}
+  </div>`;
+  document.getElementById('imp-count').textContent = `${students.length} student${students.length!==1?'s':''} ready to import`;
+}
+
+function updateImportBtn() {
+  const btn = document.getElementById('imp-btn');
+  const ok  = importedStudents.length > 0;
+  btn.disabled = !ok;
+  btn.style.opacity = ok ? '1' : '.5';
+}
+
+/* URL / Google Sheets import */
+async function previewURL() {
+  const url   = document.getElementById('imp-url-inp').value.trim();
+  const clsId = document.getElementById('imp-url-cls').value;
+  const stat  = document.getElementById('url-status');
+  if (!url) return;
+
+  // Convert Google Sheets URL to CSV export URL
+  let fetchUrl = url;
+  if (url.includes('docs.google.com/spreadsheets')) {
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (match) {
+      const gid = url.match(/gid=(\d+)/)?.[1] || '0';
+      fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv&gid=${gid}`;
+    }
+  }
+
+  stat.textContent = '⏳ Fetching…';
+  stat.style.color = 'var(--t2)';
+  document.getElementById('imp-url-preview').style.display = 'none';
+  importedStudents = [];
+  updateImportBtn();
+
+  try {
+    const resp = await fetch(fetchUrl);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    if (!clsId) { stat.textContent = 'Please select a class.'; return; }
+    importedStudents = parseStudentText(text, clsId);
+    stat.textContent = `✓ Loaded ${importedStudents.length} rows`;
+    stat.style.color = 'var(--green)';
+    showImportPreview(importedStudents, 'imp-url-preview');
+    updateImportBtn();
+  } catch(e) {
+    stat.textContent = '✗ Could not fetch. Make sure the Sheet is published as CSV (File → Share → Publish to web → CSV).';
+    stat.style.color = 'var(--red)';
+  }
+}
+
+/* CSV file upload */
+function handleCSVFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const clsId = document.getElementById('imp-csv-cls').value;
+    if (!clsId) { toast('Please select a class first', true); return; }
+    importedStudents = parseStudentText(e.target.result, clsId);
+    showImportPreview(importedStudents, 'imp-csv-preview');
+    updateImportBtn();
+  };
+  reader.readAsText(file);
+}
+
+/* drag-drop on CSV zone */
+const csvDrop = document.getElementById('csv-drop');
+csvDrop.addEventListener('dragover', e => { e.preventDefault(); csvDrop.style.borderColor='var(--green)'; });
+csvDrop.addEventListener('dragleave', () => { csvDrop.style.borderColor=''; });
+csvDrop.addEventListener('drop', e => {
+  e.preventDefault(); csvDrop.style.borderColor='';
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const clsId = document.getElementById('imp-csv-cls').value;
+    if (!clsId) { toast('Please select a class first', true); return; }
+    importedStudents = parseStudentText(ev.target.result, clsId);
+    showImportPreview(importedStudents, 'imp-csv-preview');
+    updateImportBtn();
+  };
+  r.readAsText(file);
+});
+
+function doImport() {
+  if (!importedStudents.length) return;
+  let added = 0, skipped = 0;
+  importedStudents.forEach(s => {
+    // skip duplicates (same name + class)
+    const exists = DB.students.find(x => x.name.toLowerCase()===s.name.toLowerCase() && x.classId===s.classId);
+    if (exists) { skipped++; return; }
+    DB.students.push(s);
+    added++;
+  });
+  save();
+  closeOv('ov-import');
+  renderBackend();
+  importedStudents = [];
+  toast(`✓ ${added} student${added!==1?'s':''} imported${skipped?` · ${skipped} skipped (duplicates)`:''}`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ADMIN TAB
+═══════════════════════════════════════════════════════ */
+function showTab(screenId, el) {
+  document.querySelectorAll('#sc-admin,#sc-backend').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.bnav-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById(screenId).classList.add('active');
+  el.classList.add('on');
+  if (screenId==='sc-admin')   renderAdmin();
+  if (screenId==='sc-backend') renderBackend();
+}
+
+/* ═══════════════════════════════════════════════════════
+   EXPORT CSV
+═══════════════════════════════════════════════════════ */
+function exportCSV() {
+  const hdr = ['Date','Student Name','Student ID','Class','Teacher','Type','Weeks','Amount (GH₵)','Status'];
+  const rows = DB.payments.map(p => {
+    const s = DB.students.find(x=>x.id===p.studentId);
+    return [p.date,s?.name||'',s?.studentId||'',clsName(p.classId),p.teacherName||'',p.type,p.weeks||1,p.amount||0,p.status];
+  });
+  const csv = [hdr,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `canteenpay-${todayISO()}.csv`;
+  a.click();
+  toast('CSV downloaded');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECTS POPULATION
+═══════════════════════════════════════════════════════ */
+function populateAllSelects() {
+  const opts = DB.classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  ['nt-cls','ns-cls','imp-cls','imp-url-cls','imp-csv-cls'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML=opts;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   OVERLAY HELPERS
+═══════════════════════════════════════════════════════ */
+function openOv(id)  { document.getElementById(id).classList.add('open'); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.ov').forEach(ov=>{
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('open'); });
+});
+
+function clearInputs(ids) { ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════ */
+let _tt;
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background  = err ? 'var(--rl)'  : 'var(--bg3)';
+  t.style.color       = err ? 'var(--red)' : 'var(--text)';
+  t.style.borderColor = err ? 'rgba(239,68,68,.3)' : 'var(--border2)';
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SERVICE WORKER
+═══════════════════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
